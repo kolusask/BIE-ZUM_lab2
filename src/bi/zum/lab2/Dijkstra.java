@@ -1,12 +1,14 @@
 package bi.zum.lab2;
 
 import bi.zum.lab1.PathRecSearch;
+import bi.zum.lab2.util.Euclidean;
 import bi.zum.lab2.util.ZumPriorityQueue;
 import cz.cvut.fit.zum.api.AbstractAlgorithm;
 import cz.cvut.fit.zum.api.Node;
 import cz.cvut.fit.zum.api.UninformedSearch;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.openide.util.lookup.ServiceProvider;
@@ -38,12 +40,32 @@ public class Dijkstra extends PathRecSearch implements UninformedSearch {
         open.enqueue(startNode, 0);
         dist.put(startNode, 0.0);
         
-        /**
-         * @TODO Implement algorithm
-         *          
-         */                 
+        Node target = null;
+        
+        while (!open.isEmpty()) {
+            Node current = open.dequeue();
+            for (Node n : current.expand()) {
+                if (!open.contains(n) && !closed.contains(n)) {
+                    double distance = dist.get(current) + Euclidean.distance(current, n);
+                    if (!prev.containsKey(n) || distance < dist.get(n)) {
+                        dist.put(n, distance);
+                        prev.put(n, current);
+                        if (n.isTarget())
+                            target = n;
+                    }
+                    open.enqueue(n, distance);
+                }
+            }
+            closed.add(current);
+        }   
+        
+        List<Node> path = new LinkedList<Node>();
+        if (target != null) {
+            for (Node current = target; current != startNode; current = prev.get(current))
+                path.add(current);
+        }
 
-        return null;
+        return path;
     }
 
 }
